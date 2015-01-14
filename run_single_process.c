@@ -51,6 +51,14 @@ int main()
 		perror("fork");
 		return 1;
 	} else if (pid == 0) {
+		close(fd);
+		close(lfd);
+
+		fd = open(".lock_for_single_process.flock", O_WRONLY | O_CREAT, 0600);
+		if (fd < 0) {
+			perror("open");
+			return 1;
+		}
 		printf("child[%d]: tries locks file\n", getpid());
 		if (lockf(fd, F_LOCK, 0) != 0) {
 			perror("child: lock");
@@ -68,7 +76,6 @@ int main()
 			return 1;
 		}
 		close(fd);
-		close(lfd);
 		return 0;
 	} else {
 		int val;
